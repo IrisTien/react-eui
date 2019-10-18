@@ -1,26 +1,67 @@
-import React from 'react';
+import React, { Component } from 'react';
 import logo from './logo.svg';
-import './App.css';
+import './App.scss';
+import { AppHeader } from './header/Header';
+import { AppNav } from './nav/Nav';
+import { registerRouter } from './app_router';
+import PropTypes from 'prop-types';
+import {
+  EuiPage,
+  EuiPageBody,
+  EuiPageContent,
+  EuiPageContentBody,
+  EuiPageContentHeader,
+  EuiPageContentHeaderSection,
+  EuiPageHeader,
+  EuiPageHeaderSection,
+  EuiPageSideBar,
+  EuiTitle,
+} from '@elastic/eui';
+import {
+  BrowserRouter as Router
+} from 'react-router-dom';
 
-const App: React.FC = () => {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+
+  constructor(props: any) {
+    super(props);
+
+    registerRouter(window.location.pathname);
+  }
+
+  render() {
+    return (
+      <Router {...this.props}>
+        <div className="App">
+          <AppNav />
+          {/* <EuiPageSideBar>SideBar nav</EuiPageSideBar>
+          <EuiPageBody>
+            <EuiPageHeader>
+              <EuiPageHeaderSection>
+                <EuiTitle size="l">
+                  <h1>Page Title</h1>
+                </EuiTitle>
+              </EuiPageHeaderSection>
+              <EuiPageHeaderSection>Page abilities</EuiPageHeaderSection>
+            </EuiPageHeader>
+            <EuiPageContent>
+              <EuiPageContentHeader>
+                <EuiPageContentHeaderSection>
+                  <EuiTitle>
+                    <h2>Content title</h2>
+                  </EuiTitle>
+                </EuiPageContentHeaderSection>
+                <EuiPageContentHeaderSection>
+                  Content abilities
+                </EuiPageContentHeaderSection>
+              </EuiPageContentHeader>
+              <EuiPageContentBody>Content body</EuiPageContentBody>
+            </EuiPageContent>
+          </EuiPageBody> */}
+        </div>
+      </Router>
+    );
+  }
 }
 
 export default App;
