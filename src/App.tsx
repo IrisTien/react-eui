@@ -1,39 +1,69 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.scss';
-import { AppHeader } from './header/Header';
-import { AppNav } from './nav/Nav';
-import { registerRouter } from './app_router';
-import PropTypes from 'prop-types';
+import { AppNav } from './pages/nav/nav';
+import { Dashboard } from './pages/dashboard/dashboard';
 import {
-  EuiPage,
-  EuiPageBody,
-  EuiPageContent,
-  EuiPageContentBody,
-  EuiPageContentHeader,
-  EuiPageContentHeaderSection,
-  EuiPageHeader,
-  EuiPageHeaderSection,
-  EuiPageSideBar,
-  EuiTitle,
+  EuiPage
 } from '@elastic/eui';
 import {
-  BrowserRouter as Router
+  BrowserRouter as Router, Route, Switch, useHistory
 } from 'react-router-dom';
+import { Dashboards } from './pages/dashboard/dashboards';
 
-class App extends Component {
+type AppPropsType = {
+  router?: any
+};
+
+class App extends Component<AppPropsType, {}> {
+  state = {
+    url: window.location.href
+  }
 
   constructor(props: any) {
     super(props);
 
-    registerRouter(window.location.pathname);
+    window.onhashchange = () => {
+      const urlArr = window.location && window.location.href.split('#');
+
+      if (urlArr && urlArr.length > 1) {
+        this.setState({
+          url: window.location.href.split('#')[1]
+        });
+      }
+    }
   }
 
   render() {
+    let content;
+    switch (this.state.url) {
+      case '/layout/nav-drawer':
+        content = <h1>Nav Drawer</h1>;
+        break;
+      case '/layout/dashboards':
+        content = <Dashboards />;
+        break;
+      case '/layout/dashboard':
+        content = <Dashboard />;
+        break;
+      default:
+        content = <Dashboard />;
+        break;
+    }
     return (
-      <Router {...this.props}>
+      <Router>
         <div className="App">
           <AppNav />
+          <EuiPage className="App-body">
+            {/* <Switch>
+              <Route path="#/layout/dashboards">
+                <Dashboards />
+              </Route>
+              <Route path='#/layout/nav-drawer'>
+                <Dashboard />
+              </Route>
+            </Switch> */}
+            {content}
+          </EuiPage>
           {/* <EuiPageSideBar>SideBar nav</EuiPageSideBar>
           <EuiPageBody>
             <EuiPageHeader>

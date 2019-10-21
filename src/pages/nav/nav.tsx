@@ -1,41 +1,25 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 
 import {
-  EuiPage,
-  EuiPageBody,
-  EuiPageHeader,
-  EuiPageHeaderSection,
-  EuiPageContent,
-  EuiPageContentHeader,
-  EuiPageContentHeaderSection,
-  EuiPageContentBody,
   EuiHeader,
   EuiHeaderLink,
   EuiHeaderLinks,
   EuiHeaderSection,
   EuiHeaderSectionItem,
   EuiHeaderSectionItemButton,
-  EuiHeaderBreadcrumbs,
   EuiHeaderLogo,
   EuiIcon,
   EuiImage,
-  EuiTitle,
   // @ts-ignore
   EuiNavDrawerGroup,
   // @ts-ignore
   EuiNavDrawer,
   EuiHorizontalRule,
-  // @ts-ignore
-  EuiShowFor,
   EuiFocusTrap,
-  EuiButton
 } from '@elastic/eui';
-import {
-  Switch,
-  Route
-} from 'react-router-dom';
 
 import { keyCodes } from '@elastic/eui/lib/services';
+import './nav.scss';
 
 export class AppNav extends Component {
   state = {};
@@ -148,7 +132,7 @@ export class AppNav extends Component {
     },
     {
       label: 'Dashboard',
-      href: '#/layout/dashboard',
+      href: '#/layout/dashboards',
       iconType: 'dashboardApp',
       extraAction: { ...this.pinExtraActionFn('Dashboard') },
     },
@@ -292,22 +276,14 @@ export class AppNav extends Component {
   render() {
     return (
       <EuiFocusTrap>
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            height: '100%',
-            width: '100%',
-          }}onKeyDown={this.onKeyDown}>
-          <EuiHeader>
-            <EuiHeaderSection grow={false}>
+        <EuiHeader>
+          <EuiHeaderSection grow={false}>
             <EuiHeaderSectionItem border="right">
-            <EuiHeaderLogo href="#">Product</EuiHeaderLogo>
-            </EuiHeaderSectionItem>
+            <EuiHeaderLogo href="#">Cloud Monitoring</EuiHeaderLogo>
+          </EuiHeaderSectionItem>
 
-            <EuiHeaderLinks>
-            <EuiHeaderLink href="#" isActive>
+          <EuiHeaderLinks>
+            <EuiHeaderLink href="#">
               Docs
             </EuiHeaderLink>
 
@@ -316,28 +292,18 @@ export class AppNav extends Component {
             <EuiHeaderLink iconType="help" href="#">
               Help
             </EuiHeaderLink>
-            </EuiHeaderLinks>
-            </EuiHeaderSection>
-          </EuiHeader>
-          <EuiNavDrawer ref={this.setNavDrawerRef}>
-            <EuiNavDrawerGroup listItems={this.topLinks} />
-            <EuiHorizontalRule margin="none" />
-            <EuiNavDrawerGroup listItems={this.exploreLinks} />
-            <EuiHorizontalRule margin="none" />
-            <EuiNavDrawerGroup listItems={this.solutionsLinks} />
-            <EuiHorizontalRule margin="none" />
-            <EuiNavDrawerGroup listItems={this.adminLinks} />
-          </EuiNavDrawer>
-          <EuiPage className="euiNavDrawerPage">
-            <EuiPageBody>
-              <Switch>
-                <Route path="layout/nav-drawer">
-                  Nav Drawer
-                </Route>
-              </Switch>
-            </EuiPageBody>
-          </EuiPage>
-        </div>
+          </EuiHeaderLinks>
+          </EuiHeaderSection>
+        </EuiHeader>
+        <EuiNavDrawer ref={this.setNavDrawerRef} showExpandButton={true}>
+          <EuiNavDrawerGroup listItems={this.topLinks} />
+          <EuiHorizontalRule margin="none" />
+          <EuiNavDrawerGroup listItems={this.exploreLinks} />
+          <EuiHorizontalRule margin="none" />
+          <EuiNavDrawerGroup listItems={this.solutionsLinks} />
+          <EuiHorizontalRule margin="none" />
+          <EuiNavDrawerGroup listItems={this.adminLinks} />
+        </EuiNavDrawer>
       </EuiFocusTrap>
     );
   }
