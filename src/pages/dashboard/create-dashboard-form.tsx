@@ -1,5 +1,5 @@
-import { Component } from "react";
-import React from "react";
+import { Component } from 'react';
+import React from 'react';
 import {
   EuiOverlayMask,
   EuiModal,
@@ -13,19 +13,22 @@ import {
   EuiTextArea,
   EuiButton,
   EuiButtonEmpty
-} from "@elastic/eui";
-import DashboardService from "../../services/dashboard_service";
+} from '@elastic/eui';
+import DashboardService from '../../services/dashboard_service';
 
 type CreateDashboardPropsType = {
-  onClose?: any
-}
+  onClose?: any;
+};
 
 type CreateDashboardState = {
-  name: string,
-  desp: string
-}
+  name: string;
+  desp: string;
+};
 
-export class CreateDashboardForm extends Component<CreateDashboardPropsType, CreateDashboardState> {
+export class CreateDashboardForm extends Component<
+  CreateDashboardPropsType,
+  CreateDashboardState
+> {
   constructor(props: CreateDashboardPropsType) {
     super(props);
 
@@ -38,8 +41,7 @@ export class CreateDashboardForm extends Component<CreateDashboardPropsType, Cre
   };
 
   onSave() {
-    DashboardService.addDashboard(this.state.name, this.state.desp)
-    .then(() => {
+    DashboardService.addDashboard(this.state.name, this.state.desp).then(() => {
       this.props.onClose();
     });
   }
@@ -54,17 +56,21 @@ export class CreateDashboardForm extends Component<CreateDashboardPropsType, Cre
 
           <EuiModalBody>
             <EuiForm>
-              <EuiFormRow label="Title">
+              <EuiFormRow label='Title'>
                 <EuiFieldText
                   value={this.state.name}
-                  placeholder="New Dashboard"
-                  onChange={event => this.setState({name: event.target.value})}
+                  placeholder='New Dashboard'
+                  onChange={event =>
+                    this.setState({ name: event.target.value })
+                  }
                 />
               </EuiFormRow>
-              <EuiFormRow label="Description">
+              <EuiFormRow label='Description'>
                 <EuiTextArea
                   value={this.state.desp}
-                  onChange={event => this.setState({desp: event.target.value})}
+                  onChange={event =>
+                    this.setState({ desp: event.target.value })
+                  }
                 />
               </EuiFormRow>
             </EuiForm>
@@ -72,7 +78,9 @@ export class CreateDashboardForm extends Component<CreateDashboardPropsType, Cre
 
           <EuiModalFooter>
             <EuiButtonEmpty onClick={this.props.onClose}>Cancel</EuiButtonEmpty>
-            <EuiButton onClick={this.onSave} fill>Confirm Save</EuiButton>
+            <EuiButton onClick={this.onSave} fill>
+              Confirm Save
+            </EuiButton>
           </EuiModalFooter>
         </EuiModal>
       </EuiOverlayMask>

@@ -1,2 +1,2 @@
 /// <reference types="react-scripts" />
-declare module "@elastic/eui/lib/services";
+declare module '@elastic/eui/lib/services';

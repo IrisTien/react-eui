@@ -5,31 +5,31 @@ import {
   EuiHeaderSectionItem,
   EuiHeaderLogo,
   EuiHeaderLinks,
-  EuiHeaderLink,
+  EuiHeaderLink
 } from '@elastic/eui';
 
 export class AppHeader extends Component {
   state = {
-      isAppMenuOpen: false
+    isAppMenuOpen: false
   };
 
   render() {
     return (
       <EuiHeader>
-        <EuiHeaderSectionItem border="right">
-        <EuiHeaderLogo href="#">Product</EuiHeaderLogo>
+        <EuiHeaderSectionItem border='right'>
+          <EuiHeaderLogo href='#'>Product</EuiHeaderLogo>
         </EuiHeaderSectionItem>
 
         <EuiHeaderLinks>
-        <EuiHeaderLink href="#" isActive>
-          Docs
-        </EuiHeaderLink>
+          <EuiHeaderLink href='#' isActive>
+            Docs
+          </EuiHeaderLink>
 
-        <EuiHeaderLink href="#">Code</EuiHeaderLink>
+          <EuiHeaderLink href='#'>Code</EuiHeaderLink>
 
-        <EuiHeaderLink iconType="help" href="#">
-          Help
-        </EuiHeaderLink>
+          <EuiHeaderLink iconType='help' href='#'>
+            Help
+          </EuiHeaderLink>
         </EuiHeaderLinks>
       </EuiHeader>
     );

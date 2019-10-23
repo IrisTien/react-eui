@@ -1,5 +1,5 @@
-import { Component, Fragment } from "react";
-import React from "react";
+import { Component, Fragment } from 'react';
+import React from 'react';
 import {
   EuiPageBody,
   EuiPanel,
@@ -9,14 +9,14 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiButton,
-  EuiLink,
   // @ts-ignore
   EuiBasicTable
-} from "@elastic/eui";
-import { CreateDashboardForm } from "./create-dashboard-form";
-import DashboardService from "../../services/dashboard_service";
+} from '@elastic/eui';
+import { CreateDashboardForm } from './create-dashboard-form';
+import DashboardService from '../../services/dashboard_service';
+import EuiCustomLink from '../component/eui-custom-link';
 
-export class Dashboards extends Component {
+export class Dashboards extends Component<any, any> {
   constructor(props: any) {
     super(props);
 
@@ -34,9 +34,9 @@ export class Dashboards extends Component {
       name: 'Dashboard Title',
       sortable: true,
       render: (name: any, item: any) => (
-        <EuiLink href="#/layout/dashboard">
+        <EuiCustomLink to={`/layout/dashboard/${item.id}`}>
           {name}
-        </EuiLink>
+        </EuiCustomLink>
       )
     },
     {
@@ -53,8 +53,8 @@ export class Dashboards extends Component {
   getRowProps(item: any) {
     const { id } = item;
     return {
-      onClick: () => console.log(`Clicked row ${id}`),
-    }
+      onClick: () => console.log(`Clicked row ${id}`)
+    };
   }
 
   getCellProps(item: any, column: any) {
@@ -62,10 +62,10 @@ export class Dashboards extends Component {
     const { field } = column;
     return {
       textOnly: true
-    }
+    };
   }
 
-  onSearch({query, error}: any) {
+  onSearch({ query, error }: any) {
     console.log('search dashboard');
     console.log(query);
     console.log(error);
@@ -87,10 +87,10 @@ export class Dashboards extends Component {
   render() {
     const dashboards = (
       <EuiPageBody>
-        <EuiPanel onClick={() => window.alert('Dashboards Panel clicked')}>
-          <EuiFlexGroup gutterSize="s" alignItems="center">
+        <EuiPanel onClick={() => console.log('Dashboards Panel clicked')}>
+          <EuiFlexGroup gutterSize='s' alignItems='center'>
             <EuiFlexItem>
-              <EuiTitle size="l">
+              <EuiTitle size='l'>
                 <h1>Dashboard</h1>
               </EuiTitle>
             </EuiFlexItem>
@@ -102,7 +102,7 @@ export class Dashboards extends Component {
           </EuiFlexGroup>
           <EuiFlexGroup>
             <EuiFlexItem>
-              <EuiSearchBar onChange={this.onSearch}/>
+              <EuiSearchBar onChange={this.onSearch} />
             </EuiFlexItem>
           </EuiFlexGroup>
           <EuiFlexGroup>
@@ -123,9 +123,10 @@ export class Dashboards extends Component {
 
     if (this.state.isModalVisible) {
       modal = (
-        <CreateDashboardForm onClose={this.closeDashboardCreateModal}>
-        </CreateDashboardForm>
-      )
+        <CreateDashboardForm
+          onClose={this.closeDashboardCreateModal}
+        ></CreateDashboardForm>
+      );
     }
     return (
       <Fragment>
@@ -136,8 +137,7 @@ export class Dashboards extends Component {
   }
 
   private getDashboardsData() {
-    DashboardService.getDashboards()
-    .then((data: any) => {
+    DashboardService.getDashboards().then((data: any) => {
       this.setState({
         data: data
       });

@@ -1,9 +1,7 @@
 import * as fs from 'fs';
 
 class DashboardServiceProto {
-  constructor() {
-
-  }
+  constructor() {}
 
   /***
    * Dashboards Data Example:
@@ -13,25 +11,22 @@ class DashboardServiceProto {
    *    desp: 'Dashboard Description'
    * }]
    */
-  addDashboard(name: string , desp: string) {
+  addDashboard(name: string, desp: string) {
     const data = {
-      id: Math.random() * 10000000,
+      id: (Math.random() * 10000000).toString(),
       name: name,
       desp: desp
     };
 
-    let currentData = JSON.parse(localStorage.getItem('dashboards') || "[]");
-    currentData = [
-      ...currentData,
-      data
-    ]
+    let currentData = JSON.parse(localStorage.getItem('dashboards') || '[]');
+    currentData = [...currentData, data];
 
     localStorage.setItem('dashboards', JSON.stringify(currentData));
     return Promise.resolve('succeed');
   }
 
   getDashboards() {
-    const currentData = JSON.parse(localStorage.getItem('dashboards') || "[]");
+    const currentData = JSON.parse(localStorage.getItem('dashboards') || '[]');
     return Promise.resolve(currentData);
   }
 
@@ -39,19 +34,25 @@ class DashboardServiceProto {
    * Dashboard Detail Example
    * [{
    *   id: 'xxx',
-   *   Widgets: [
+   *   name: 'ddd',
+   *   widgets: [
    *     {
-   *       type: 'Chart' or 'Grid'
+   *       id: 'widgetId',
+   *       type: 'Chart' or 'Grid',
    *       data: [
    *         {
-   *             type: 'Bar'
-   *             request: ''
+   *             id: 'panel1data1',
+   *             type: 'Bar',
+   *             request: '',
+   *             x: 'xField',
+   *             y: 'yField'
    *         }
    *       ],
    *       axises: [
    *         {
-   *           id: 'xxxxx'
-   *           position: 'bottom'
+   *           id: 'xxxxx',
+   *           position: 'bottom',
+   *           type: 'time'
    *         }
    *       ]
    *     }
@@ -59,13 +60,36 @@ class DashboardServiceProto {
    * }]
    * @param id Dashboard ID
    */
-  getDashboard(id: number) {
-    const dashboardDetailList = JSON.parse(localStorage.getItem('dashboards-detail') || "[]");
-    const detail = dashboardDetailList.find((item: any) => item.id === id);
-    if (!detail) {
-      return Promise.reject('Dashboard not exist');
+  getDashboard(id?: number) {
+    const dashboardDetailList = JSON.parse(
+      localStorage.getItem('dashboards-detail') || '[]'
+    );
+    if (id) {
+      const detail = dashboardDetailList.find((item: any) => item.id === id);
+      if (!detail) {
+        return Promise.reject('Dashboard not exist');
+      }
+      return Promise.resolve(detail);
     }
-    Promise.resolve(detail);
+    return Promise.resolve();
+  }
+
+  updateDashboard(id: number, widgets: any) {
+    const dashboardDetailList = JSON.parse(
+      localStorage.getItem('dashboards-detail') || '[]'
+    );
+    const detail = dashboardDetailList.find((item: any) => item.id === id);
+
+    if (!detail) {
+      detail.push({
+        id: id,
+        widgets: widgets
+      });
+    } else {
+      detail.widgets = widgets;
+    }
+    localStorage.setItem('dashboards-detail', JSON.stringify(detail));
+    return Promise.resolve('succeed');
   }
 }
 
