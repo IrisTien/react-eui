@@ -21,6 +21,7 @@ import {
   BarSeries,
   getGroupId
 } from '@elastic/charts';
+import { isNumber } from 'lodash';
 
 type SessionResourcePropsType = {
   counts: {
@@ -94,7 +95,9 @@ const DashboardSessionResouceConsumption: FC<
           <EuiFlexGroup>
             <EuiFlexItem>
               <EuiStat
-                title={props.counts.sessions}
+                title={
+                  isNumber(props.counts.sessions) ? props.counts.sessions : 'NA'
+                }
                 titleSize='s'
                 description='Total Sessions'
                 textAlign='center'
@@ -103,7 +106,11 @@ const DashboardSessionResouceConsumption: FC<
             </EuiFlexItem>
             <EuiFlexItem>
               <EuiStat
-                title={props.counts.desktopSessions}
+                title={
+                  isNumber(props.counts.desktopSessions)
+                    ? props.counts.desktopSessions
+                    : 'NA'
+                }
                 titleSize='s'
                 description='Desktop Sessions'
                 textAlign='center'
@@ -112,7 +119,11 @@ const DashboardSessionResouceConsumption: FC<
             </EuiFlexItem>
             <EuiFlexItem>
               <EuiStat
-                title={props.counts.applicationSessions}
+                title={
+                  isNumber(props.counts.applicationSessions)
+                    ? props.counts.applicationSessions
+                    : 'NA'
+                }
                 titleSize='s'
                 description='Application Sessions'
                 textAlign='center'
@@ -198,7 +209,7 @@ const DashboardSessionResouceConsumption: FC<
           </EuiFlexGroup>
         </EuiFlexItem>
         <EuiFlexItem grow={1}>
-          <Chart className='story-chart'>
+          <Chart>
             <Settings rotation={90} />
             <BarSeries
               id={getSpecId(resourceType)}
@@ -214,7 +225,7 @@ const DashboardSessionResouceConsumption: FC<
               ]}
             />
             <Axis
-              id={getAxisId('create-visual-bottom-axis')}
+              id={getAxisId('resource-consumption-bar-bottom-axis')}
               position='bottom'
             />
           </Chart>

@@ -15,6 +15,7 @@ import {
 import DashboardSessionSummary from './session-summary';
 import DashboardSessionResouceConsumption from './session-resource-consumption';
 import DashboardSessionConsumptionBars from './session-consumption-bars';
+import DashboardSessionService from './session-service';
 
 const DashboardSession: FC = (props: any) => {
   const timeOptions = [
@@ -76,7 +77,7 @@ const DashboardSession: FC = (props: any) => {
 
   const [timeInterval, setTimeInterval] = useState(timeOptions[2].value);
   const [location, setLocation] = useState();
-  const [pod, setPod] = useState();
+  const [pod, setPod] = useState<string>('');
   const [counts, setCounts] = useState({});
 
   const onTimeSelect = (e: any) => {
@@ -92,11 +93,14 @@ const DashboardSession: FC = (props: any) => {
   };
 
   useEffect(() => {
+    // TODO: get all user count summary info
+    DashboardSessionService.getSessionOverview(pod).then((res: any) => {
+      setCounts({
+        ...counts,
+        ...res
+      });
+    });
     setCounts({
-      sessions: 10,
-      users: 2,
-      activeSessions: 0,
-      disconnectedSessions: 2,
       desktopSessions: 1,
       applicationSessions: 1
     });

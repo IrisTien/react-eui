@@ -2,12 +2,14 @@ import React, { FC } from 'react';
 
 import { EuiPanel, EuiFlexGroup, EuiFlexItem, EuiStat } from '@elastic/eui';
 
+import { isNumber } from 'lodash';
+
 type SummaryPropsType = {
   counts: {
-    sessions?: number;
-    users?: number;
-    activeSessions?: number;
-    disconnectedSessions?: number;
+    sessions?: number | string;
+    users?: number | string;
+    activeSessions?: number | string;
+    disconnectedSessions?: number | string;
   };
 };
 
@@ -17,7 +19,9 @@ const DashboardSessionSummary: FC<SummaryPropsType> = props => {
       <EuiFlexGroup>
         <EuiFlexItem>
           <EuiStat
-            title={props.counts.sessions}
+            title={
+              isNumber(props.counts.sessions) ? props.counts.sessions : 'NA'
+            }
             description='Total Sessions'
             reverse={true}
             textAlign='center'
@@ -25,7 +29,7 @@ const DashboardSessionSummary: FC<SummaryPropsType> = props => {
         </EuiFlexItem>
         <EuiFlexItem>
           <EuiStat
-            title={props.counts.users}
+            title={isNumber(props.counts.users) ? props.counts.users : 'NA'}
             description='Unique Users'
             reverse={true}
             textAlign='center'
@@ -33,7 +37,11 @@ const DashboardSessionSummary: FC<SummaryPropsType> = props => {
         </EuiFlexItem>
         <EuiFlexItem>
           <EuiStat
-            title={props.counts.activeSessions}
+            title={
+              isNumber(props.counts.activeSessions)
+                ? props.counts.activeSessions
+                : 'NA'
+            }
             description='Active Sessions'
             reverse={true}
             textAlign='center'
@@ -41,7 +49,11 @@ const DashboardSessionSummary: FC<SummaryPropsType> = props => {
         </EuiFlexItem>
         <EuiFlexItem>
           <EuiStat
-            title={props.counts.disconnectedSessions}
+            title={
+              isNumber(props.counts.disconnectedSessions)
+                ? props.counts.disconnectedSessions
+                : 'NA'
+            }
             description='Disconnected Sessions'
             reverse={true}
             textAlign='center'
