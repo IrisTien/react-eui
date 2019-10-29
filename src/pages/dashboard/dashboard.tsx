@@ -16,14 +16,15 @@ import {
   timeFormatter,
   niceTimeFormatByDay,
   Chart,
-  LineSeries
+  LineSeries,
+  getAxisId,
+  getSpecId
 } from '@elastic/charts';
 import { EuiPanel } from '@elastic/eui';
 import { EuiFlexGroup } from '@elastic/eui';
 import { EuiSpacer } from '@elastic/eui';
 import UserService from '../../services/user_service';
 import { EuiButton } from '@elastic/eui';
-import './dashboard.scss';
 import VisualizationForm from './create-visualization-form';
 
 const Dashboard: FC = () => {
@@ -36,13 +37,24 @@ const Dashboard: FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
-    DashboardService.getDashboard(Number(dashboardId)).then(detail => {
+    fetchData();
+    return () => {
+      setDashboardId(dashboardId);
+      setTitle('');
+      setChartDef([]);
+      setChartData({});
+    };
+  }, [dashboardId]);
+
+  const fetchData = () => {
+    DashboardService.getDashboard(dashboardId).then(detail => {
       if (detail) {
         setTitle(detail.name || '');
         if (detail.widgets && detail.widgets.length) {
+          let chartWidgets: any = [];
           detail.widgets.forEach((widget: any) => {
             if (widget.type === 'Chart') {
-              setChartDef(chartDef.concat(widget));
+              chartWidgets.push(widget);
             }
             widget.data.forEach((dataItem: any) => {
               if (dataItem.request) {
@@ -66,16 +78,11 @@ const Dashboard: FC = () => {
               }
             });
           });
+          setChartDef(chartWidgets);
         }
       }
     });
-    return () => {
-      setDashboardId(dashboardId);
-      setTitle('');
-      setChartDef([]);
-      setChartData({});
-    };
-  }, [dashboardId]);
+  };
 
   const renderChartWidgets = () => {
     return chartDef.map((widget: any) => {
@@ -84,7 +91,7 @@ const Dashboard: FC = () => {
           if (item.type === 'Line') {
             return (
               <LineSeries
-                id={item.id}
+                key={item.id}
                 data={chartData[item.id] || []}
                 xAccessor={'key'}
                 yAccessors={['avg_d']}
@@ -93,17 +100,23 @@ const Dashboard: FC = () => {
             );
           }
         });
-        let axis = widget.axis.map((item: any) => {
-          if (item.type === 'time') {
+        let axis = widget.axis.map((axis: any) => {
+          if (axis.type === 'time') {
             return (
               <Axis
-                id={item.id}
-                position={item.position}
+                id={getAxisId(axis.id)}
+                position={axis.position}
                 tickFormat={timeFormatter(niceTimeFormatByDay(7))}
               />
             );
           } else {
-            return <Axis id={item.id} position={item.position} showGridLines />;
+            return (
+              <Axis
+                id={getAxisId(axis.id)}
+                position={axis.position}
+                showGridLines
+              />
+            );
           }
         });
         return (
@@ -128,6 +141,8 @@ const Dashboard: FC = () => {
     if (isModalVisible) {
       return (
         <VisualizationForm
+          key={(Math.random() * 10000).toString()}
+          dashboardId={dashboardId}
           onClose={closeVisualizationCreateModal}
         ></VisualizationForm>
       );
@@ -138,7 +153,7 @@ const Dashboard: FC = () => {
     <>
       <EuiPageBody>
         <EuiPageHeader>
-          <EuiPageHeaderSection className='dashboard-header'>
+          <EuiPageHeaderSection className='mui-header'>
             <EuiFlexGroup alignItems='center'>
               <EuiFlexItem>
                 <EuiTitle size='l'>

@@ -6,6 +6,7 @@ import { Router, Switch, Route } from 'react-router-dom';
 import { Dashboards } from './pages/dashboard/dashboards';
 import AppRouterService from './app_router';
 import { AppNav } from './pages/nav/nav';
+import DashboardSession from './pages/dashboard/session/dashboard-session';
 
 type AppPropsType = {
   router?: any;
@@ -20,6 +21,9 @@ const App: FC = (props: any) => {
           <Switch>
             <Route exact path='/'>
               <h1>Home Page</h1>
+            </Route>
+            <Route path='/session'>
+              <DashboardSession />
             </Route>
             <Route path='/layout/dashboards'>
               <Dashboards />

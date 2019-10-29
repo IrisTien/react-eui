@@ -70,7 +70,7 @@ class UserAPI {
 
   searchDataByQueryBody(query: any) {
     let to = Date.now();
-    let from = to - 7 * 24 * 60 * 60 * 1000;
+    let from = to - 30 * 24 * 60 * 60 * 1000;
     query = {
       ...query,
       query: {

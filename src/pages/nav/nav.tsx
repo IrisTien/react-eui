@@ -19,7 +19,6 @@ import {
 } from '@elastic/eui';
 
 import { keyCodes } from '@elastic/eui/lib/services';
-import './nav.scss';
 import AppRouterService from '../../app_router';
 
 export class AppNav extends Component {
@@ -111,9 +110,8 @@ export class AppNav extends Component {
   exploreLinks = [
     {
       label: 'Canvas',
-      href: 'layout/nav-drawer',
+      href: 'session',
       iconType: 'canvasApp',
-      isActive: true,
       extraAction: {
         ...this.pinExtraActionFn('Canvas'),
         alwaysShow: true
@@ -121,7 +119,7 @@ export class AppNav extends Component {
     },
     {
       label: 'Discover',
-      href: '#/layout/nav-drawer',
+      href: 'layout/nav-drawer',
       iconType: 'discoverApp',
       extraAction: { ...this.pinExtraActionFn('Discover') }
     },

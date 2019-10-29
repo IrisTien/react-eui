@@ -60,7 +60,7 @@ class DashboardServiceProto {
    * }]
    * @param id Dashboard ID
    */
-  getDashboard(id?: number) {
+  getDashboard(id?: string) {
     const dashboardDetailList = JSON.parse(
       localStorage.getItem('dashboards-detail') || '[]'
     );
@@ -74,21 +74,25 @@ class DashboardServiceProto {
     return Promise.resolve();
   }
 
-  updateDashboard(id: number, widgets: any) {
+  updateDashboard(id: string, name: string, widgets: any) {
     const dashboardDetailList = JSON.parse(
       localStorage.getItem('dashboards-detail') || '[]'
     );
     const detail = dashboardDetailList.find((item: any) => item.id === id);
 
     if (!detail) {
-      detail.push({
+      dashboardDetailList.push({
         id: id,
+        name: name,
         widgets: widgets
       });
     } else {
       detail.widgets = widgets;
     }
-    localStorage.setItem('dashboards-detail', JSON.stringify(detail));
+    localStorage.setItem(
+      'dashboards-detail',
+      JSON.stringify(dashboardDetailList)
+    );
     return Promise.resolve('succeed');
   }
 }

@@ -7,7 +7,7 @@ import { createBrowserHistory } from 'history';
 class AppRouter {
   router: any;
   history = createBrowserHistory({
-    basename: window.location.href.split('#')[1] || ''
+    basename: ''
   });
 
   getHistory() {

@@ -1,4 +1,4 @@
-import React, { useState, FC } from 'react';
+import React, { useState, FC, useEffect } from 'react';
 import {
   EuiOverlayMask,
   EuiModal,
@@ -11,24 +11,42 @@ import {
   EuiSelect,
   EuiModalFooter,
   EuiButtonEmpty,
-  EuiButton
+  EuiButton,
+  EuiTextArea,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiTitle,
+  EuiText,
+  EuiSpacer,
+  EuiPanel
 } from '@elastic/eui';
 import './visualization-form.scss';
-import { EuiFlexGroup } from '@elastic/eui';
-import { EuiFlexItem } from '@elastic/eui';
-import { EuiTitle } from '@elastic/eui';
-import { EuiText } from '@elastic/eui';
-import { EuiSpacer } from '@elastic/eui';
+import {
+  Chart,
+  LineSeries,
+  getAxisId,
+  Axis,
+  timeFormatter,
+  niceTimeFormatByDay
+} from '@elastic/charts';
+import { debounce } from 'lodash';
+import useDebounce from '../../common/useDebounce';
+import UserService from '../../services/user_service';
+import DashboardService from '../../services/dashboard_service';
 
 type visualizationPropsType = {
   onClose?: any;
+  dashboardId?: string;
 };
 
 const VisualizationForm: FC<visualizationPropsType> = (props: any) => {
   const [isAvailable, setIsAvailable] = useState(false);
+  const [name, setName] = useState('');
   const [visualType, setVisualType] = useState();
+  const [queryBody, setQueryBody] = useState('');
   const [chartDef, setChartDef] = useState<any>({});
-  const [chartData, setChartData] = useState();
+  const [chartData, setChartData] = useState([]);
+  const debouncedQueryBody = useDebounce(queryBody, 500);
 
   const visualTypeOptions = [
     {
@@ -41,7 +59,68 @@ const VisualizationForm: FC<visualizationPropsType> = (props: any) => {
     }
   ];
 
+  useEffect(() => {
+    if (debouncedQueryBody) {
+      try {
+        const body = JSON.parse(debouncedQueryBody);
+        UserService.searchDataByQueryBody(body).then((resp: any) => {
+          let data =
+            (resp.aggregations &&
+              resp.aggregations.agg_field &&
+              resp.aggregations.agg_field.buckets) ||
+            [];
+          data = data.map((item: any) => {
+            item.avg_d = item.avg_d.value;
+            return item;
+          });
+          setChartData(data);
+          if (chartDef && chartDef.data) {
+            setChartDef({
+              ...chartDef,
+              data: [
+                {
+                  ...chartDef.data[0],
+                  request: JSON.parse(debouncedQueryBody)
+                }
+              ]
+            });
+          }
+        });
+      } catch (err) {}
+    }
+  }, [debouncedQueryBody]);
+
   const onSave = () => {
+    let widgets: any;
+    DashboardService.getDashboard(props.dashboardId)
+      .then(dashboardDetail => {
+        widgets = dashboardDetail.widgets || [];
+      })
+      .catch(() => {
+        widgets = [];
+      })
+      .finally(() => {
+        widgets.push({
+          ...chartDef,
+          axis: [
+            {
+              id: (Math.random() * 10000000).toString(),
+              position: 'bottom',
+              type: 'time'
+            },
+            {
+              id: (Math.random() * 10000000).toString(),
+              position: 'left',
+              type: ''
+            }
+          ]
+        });
+        DashboardService.updateDashboard(props.dashboardId, name, widgets).then(
+          () => {
+            props.onClose();
+          }
+        );
+      });
     console.log('save the visualization!');
   };
 
@@ -50,8 +129,11 @@ const VisualizationForm: FC<visualizationPropsType> = (props: any) => {
     setIsAvailable(true);
     setChartDef({
       ...chartDef,
+      id: (Math.random() * 10000000).toString(),
+      type: 'Chart',
       data: [
         {
+          id: (Math.random() * 10000000).toString(),
           type: e.target.value
         }
       ]
@@ -59,8 +141,49 @@ const VisualizationForm: FC<visualizationPropsType> = (props: any) => {
   };
 
   const showPreview = () => {
+    if (chartDef && chartDef.data && chartDef.data.request) {
+      console.log(chartDef.data.request);
+    }
+
     if (isAvailable) {
-      return <h1>Preview</h1>;
+      let series;
+      let axis;
+      if (chartDef && chartDef.data && chartDef.data.length) {
+        const chartDataDef = chartDef.data[0];
+        if (chartDataDef.type === 'Line') {
+          series = (
+            <LineSeries
+              id={chartDataDef.id}
+              data={chartData || []}
+              xAccessor={'key'}
+              yAccessors={['avg_d']}
+              xScaleType='time'
+            />
+          );
+          axis = (
+            <>
+              <Axis
+                id={getAxisId('create-visual-bottom-axis')}
+                position='bottom'
+                tickFormat={timeFormatter(niceTimeFormatByDay(7))}
+              />
+              <Axis
+                id={getAxisId('create-visual-left-axis')}
+                position='left'
+                showGridLines
+              />
+            </>
+          );
+        }
+      }
+      return (
+        <EuiPanel>
+          <Chart size={{ height: 300 }}>
+            {series}
+            {axis}
+          </Chart>
+        </EuiPanel>
+      );
     } else {
       return (
         <>
@@ -92,14 +215,15 @@ const VisualizationForm: FC<visualizationPropsType> = (props: any) => {
               <EuiForm>
                 <EuiFormRow label='Title'>
                   <EuiFieldText
-                    value={chartDef.name}
+                    value={name}
                     placeholder='New Visualization'
-                    onChange={event =>
+                    onChange={event => {
+                      setName(event.target.value);
                       setChartDef({
                         ...chartDef,
-                        name: event.target.value
-                      })
-                    }
+                        name: name
+                      });
+                    }}
                   />
                 </EuiFormRow>
                 <EuiFormRow>
@@ -108,6 +232,12 @@ const VisualizationForm: FC<visualizationPropsType> = (props: any) => {
                     options={visualTypeOptions}
                     value={visualType}
                     onChange={onVisualTypeSelect}
+                  />
+                </EuiFormRow>
+                <EuiFormRow label='Description'>
+                  <EuiTextArea
+                    value={queryBody}
+                    onChange={(e: any) => setQueryBody(e.target.value)}
                   />
                 </EuiFormRow>
               </EuiForm>
