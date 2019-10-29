@@ -100,10 +100,6 @@ const DashboardSession: FC = (props: any) => {
         ...res
       });
     });
-    setCounts({
-      desktopSessions: 1,
-      applicationSessions: 1
-    });
     return () => {
       setCounts({});
     };

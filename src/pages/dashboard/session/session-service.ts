@@ -46,6 +46,16 @@ const DashboardSessionService = {
                 match: {
                   s_status: 'disconnected'
                 }
+              },
+              desktop_sessions: {
+                match: {
+                  s_type: 'desktop'
+                }
+              },
+              application_sessions: {
+                match: {
+                  s_type: 'application'
+                }
               }
             }
           },
@@ -73,11 +83,16 @@ const DashboardSessionService = {
       const idleSessions = details.idle_sessions.session_count.value;
       const disconnectedSessions =
         details.disconnected_sessions.session_count.value;
+      const desktopSessions = details.desktop_sessions.session_count.value;
+      const applicationSessions =
+        details.application_sessions.session_count.value;
       return {
         sessions: totalSessions,
         users: totalUsers,
         activeSessions: (activeSessions || 0) + (idleSessions || 0),
-        disconnectedSessions: disconnectedSessions
+        disconnectedSessions: disconnectedSessions,
+        desktopSessions: desktopSessions,
+        applicationSessions: applicationSessions
       };
     });
   }

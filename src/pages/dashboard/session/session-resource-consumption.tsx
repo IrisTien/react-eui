@@ -68,7 +68,7 @@ const DashboardSessionResouceConsumption: FC<
       <EuiFlexGroup>
         <EuiFlexItem>
           <EuiTitle size='xs' className='mui-header'>
-            <h1>Count by Session Status</h1>
+            <h1>Resource Consumption</h1>
           </EuiTitle>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>

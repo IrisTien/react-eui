@@ -82,7 +82,7 @@ const DashboardSessionBlastLatency: FC = () => {
           <Chart size={{ height: 300 }}>
             <Settings rotation={90} />
             <BarSeries
-              id={getSpecId('session-blast-series')}
+              id={getSpecId('sessions')}
               xScaleType='linear'
               yScaleType='linear'
               xAccessor='x'
