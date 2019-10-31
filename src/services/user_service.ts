@@ -89,6 +89,10 @@ class UserAPI {
     };
     return HttpService.post(BASE_URL, query, DEFAULT_CONFIG);
   }
+
+  searchData(query: any) {
+    return HttpService.post(BASE_URL, query, DEFAULT_CONFIG);
+  }
 }
 
 const UserService = new UserAPI();

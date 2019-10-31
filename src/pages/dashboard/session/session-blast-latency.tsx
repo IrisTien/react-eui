@@ -18,8 +18,15 @@ import {
   getSpecId,
   getAxisId
 } from '@elastic/charts';
+import { PropertySortType } from '@elastic/eui';
 
-const DashboardSessionBlastLatency: FC = () => {
+type SessionBlastLatencyPropTypes = {
+  data?: any[];
+};
+
+const DashboardSessionBlastLatency: FC<
+  SessionBlastLatencyPropTypes
+> = props => {
   const [isRefreshInfoOpen, setIsRefreshInfoOpen] = useState();
 
   let panel: any;
@@ -36,15 +43,15 @@ const DashboardSessionBlastLatency: FC = () => {
 
   const tickFormat = (value: any) => {
     switch (value) {
-      case 1:
+      case 0:
         return '>250 ms';
-      case 2:
+      case 1:
         return '200-250 ms';
-      case 3:
+      case 2:
         return '150-200 ms';
-      case 4:
+      case 3:
         return '100-150 ms';
-      case 5:
+      case 4:
         return '<100 ms';
       default:
         return '';
@@ -85,15 +92,9 @@ const DashboardSessionBlastLatency: FC = () => {
               id={getSpecId('sessions')}
               xScaleType='linear'
               yScaleType='linear'
-              xAccessor='x'
-              yAccessors={['y']}
-              data={[
-                { x: 1, y: 2 },
-                { x: 2, y: 7 },
-                { x: 3, y: 3 },
-                { x: 4, y: 2 },
-                { x: 5, y: 1 }
-              ]}
+              xAccessor='index'
+              yAccessors={['session']}
+              data={props.data}
             />
             <Axis
               id={getAxisId('session-blast-left-axis')}

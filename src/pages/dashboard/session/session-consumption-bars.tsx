@@ -3,11 +3,17 @@ import React from 'react';
 import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import DashboardSessionBlastLatency from './session-blast-latency';
 
-const DashboardSessionConsumptionBars: FC = () => {
+type SessionConsumptionPropsTypes = {
+  blastData?: any[];
+};
+
+const DashboardSessionConsumptionBars: FC<
+  SessionConsumptionPropsTypes
+> = props => {
   return (
     <EuiFlexGroup>
       <EuiFlexItem>
-        <DashboardSessionBlastLatency />
+        <DashboardSessionBlastLatency data={props.blastData} />
       </EuiFlexItem>
       <EuiFlexItem></EuiFlexItem>
       <EuiFlexItem></EuiFlexItem>

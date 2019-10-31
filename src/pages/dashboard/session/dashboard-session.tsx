@@ -79,6 +79,9 @@ const DashboardSession: FC = (props: any) => {
   const [location, setLocation] = useState();
   const [pod, setPod] = useState<string>('');
   const [counts, setCounts] = useState({});
+  const [resourceTrendData, setResourceTrendData] = useState<any>({});
+  const [resourcePodData, setResourcePodData] = useState<any>([]);
+  const [latencyData, setLatencyData] = useState<any[]>([]);
 
   const onTimeSelect = (e: any) => {
     setTimeInterval(e.target.value);
@@ -100,8 +103,24 @@ const DashboardSession: FC = (props: any) => {
         ...res
       });
     });
+
+    DashboardSessionService.getResourceConsumptionTrend().then((res: any) => {
+      setResourceTrendData(res);
+    });
+
+    DashboardSessionService.getSessionPerPod().then((res: any) => {
+      setResourcePodData(res);
+    });
+
+    DashboardSessionService.getSessionLatency().then((res: any) => {
+      setLatencyData(res);
+    });
+
     return () => {
       setCounts({});
+      setResourceTrendData({});
+      setResourcePodData([]);
+      setLatencyData([]);
     };
   }, [timeInterval, location, pod]);
 
@@ -146,9 +165,13 @@ const DashboardSession: FC = (props: any) => {
       <EuiSpacer size='m' />
       <DashboardSessionSummary counts={counts} />
       <EuiSpacer />
-      <DashboardSessionResouceConsumption counts={counts} />
+      <DashboardSessionResouceConsumption
+        counts={counts}
+        trendData={resourceTrendData}
+        barData={resourcePodData}
+      />
       <EuiSpacer />
-      <DashboardSessionConsumptionBars />
+      <DashboardSessionConsumptionBars blastData={latencyData} />
     </EuiPageBody>
   );
 };

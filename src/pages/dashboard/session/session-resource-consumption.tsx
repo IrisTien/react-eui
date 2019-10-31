@@ -29,6 +29,14 @@ type SessionResourcePropsType = {
     desktopSessions?: number;
     applicationSessions?: number;
   };
+  trendData: {
+    cpuTrend?: any[];
+    totalTrend?: any[];
+    desktopTrend?: any[];
+    applicationTrend?: any[];
+    podData?: any[];
+  };
+  barData?: any[];
 };
 
 const DashboardSessionResouceConsumption: FC<
@@ -140,53 +148,37 @@ const DashboardSessionResouceConsumption: FC<
                   showLegendDisplayValue={false}
                 />
                 <LineSeries
-                  id={getSpecId(resourceType)}
+                  id={getSpecId('resource-consumption-line')}
                   xScaleType='time'
                   yScaleType='linear'
-                  xAccessor={0}
-                  yAccessors={[1]}
+                  xAccessor='time'
+                  yAccessors={['cpu']}
                   groupId={getGroupId('cpu')}
-                  data={[
-                    [1551438000000, 3.3203125],
-                    [1551438030000, 2.9140625],
-                    [1551438060000, 1.8671875]
-                  ]}
+                  data={props.trendData.cpuTrend || []}
                 />
                 <LineSeries
                   id={getSpecId('Total Sessions')}
                   xScaleType='time'
                   yScaleType='linear'
-                  xAccessor={0}
-                  yAccessors={[1]}
-                  data={[
-                    [1551438000000, 38.3203125],
-                    [1551438030000, 27.9140625],
-                    [1551438060000, 17.8671875]
-                  ]}
+                  xAccessor='time'
+                  yAccessors={['total']}
+                  data={props.trendData.totalTrend || []}
                 />
                 <LineSeries
                   id={getSpecId('Total Desktop Sessions')}
                   xScaleType='time'
                   yScaleType='linear'
-                  xAccessor={0}
-                  yAccessors={[1]}
-                  data={[
-                    [1551438000000, 18.3203125],
-                    [1551438030000, 17.9140625],
-                    [1551438060000, 7.8671875]
-                  ]}
+                  xAccessor='time'
+                  yAccessors={['desktop']}
+                  data={props.trendData.desktopTrend || []}
                 />
                 <LineSeries
                   id={getSpecId('Total Application Sessions')}
                   xScaleType='time'
                   yScaleType='linear'
-                  xAccessor={0}
-                  yAccessors={[1]}
-                  data={[
-                    [1551438000000, 8.3203125],
-                    [1551438030000, 7.9140625],
-                    [1551438060000, 7.8671875]
-                  ]}
+                  xAccessor='time'
+                  yAccessors={['application']}
+                  data={props.trendData.applicationTrend || []}
                 />
                 <Axis
                   id={getAxisId('session-axis-bottom')}
@@ -212,17 +204,17 @@ const DashboardSessionResouceConsumption: FC<
           <Chart>
             <Settings rotation={90} />
             <BarSeries
-              id={getSpecId(resourceType)}
+              id={getSpecId('pod-session-series')}
               xScaleType='linear'
               yScaleType='linear'
-              xAccessor='x'
-              yAccessors={['y']}
-              splitSeriesAccessors={['g']}
-              data={[
-                { x: 0, y: 2, g: 'CmsAzure1' },
-                { x: 1, y: 7, g: 'CmsAzure2' },
-                { x: 2, y: 3, g: 'CmsAzure3' }
-              ]}
+              xAccessor='index'
+              yAccessors={['session']}
+              splitSeriesAccessors={['pod']}
+              data={props.barData || []}
+            />
+            <Axis
+              id={getAxisId('resource-consumption-bar-left-axis')}
+              tickFormat={() => ''}
             />
             <Axis
               id={getAxisId('resource-consumption-bar-bottom-axis')}
