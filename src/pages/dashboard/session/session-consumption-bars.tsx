@@ -5,6 +5,8 @@ import DashboardSessionBlastLatency from './session-blast-latency';
 
 type SessionConsumptionPropsTypes = {
   blastData?: any[];
+  latencyRanges?: any;
+  setModalVisible: Function;
 };
 
 const DashboardSessionConsumptionBars: FC<
@@ -13,7 +15,11 @@ const DashboardSessionConsumptionBars: FC<
   return (
     <EuiFlexGroup>
       <EuiFlexItem>
-        <DashboardSessionBlastLatency data={props.blastData} />
+        <DashboardSessionBlastLatency
+          data={props.blastData}
+          latencyRanges={props.latencyRanges}
+          setModalVisible={props.setModalVisible}
+        />
       </EuiFlexItem>
       <EuiFlexItem></EuiFlexItem>
       <EuiFlexItem></EuiFlexItem>

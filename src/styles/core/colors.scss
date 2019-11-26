@@ -1,0 +1,71 @@
+// Core
+$euiColorPrimary: #1ba9f5;
+$euiColorSecondary: #7de2d1;
+$euiColorAccent: #f990c0;
+
+// These colors stay the same no matter the theme
+$euiColorGhost: #fff;
+$euiColorInk: #000;
+
+// Status
+$euiColorSuccess: $euiColorSecondary;
+$euiColorWarning: #ffce7a;
+$euiColorDanger: #f66;
+
+// Grays
+$euiColorEmptyShade: #0c84b4; //#1d1e24;
+$euiColorLightestShade: #25262e;
+$euiColorLightShade: #343741;
+$euiColorMediumShade: #535966;
+$euiColorDarkShade: #98a2b3;
+$euiColorDarkestShade: #d4dae5;
+$euiColorFullShade: #fff;
+
+// Variations from core
+
+$euiTextColor: #dfe5ef;
+$euiLinkColor: $euiColorPrimary;
+$euiFocusBackgroundColor: #232635;
+$euiShadowColor: #000;
+$euiShadowColorLarge: #000;
+
+// Visualization colors
+// Currently this is the same as light. It is required to list them for our docs to work
+
+$euiColorVis0: #00b3a4;
+$euiColorVis1: #3185fc;
+$euiColorVis2: #db1374;
+$euiColorVis3: #490092;
+$euiColorVis4: #feb6db;
+$euiColorVis5: #e6c220;
+$euiColorVis6: #bfa180;
+$euiColorVis7: #f98510;
+$euiColorVis8: #461a0a;
+$euiColorVis9: #920000;
+
+$euiColorChartLines: #343741;
+$euiColorChartBand: #2a2c35;
+
+// Code
+
+$euiCodeBlockCommentColor: #656565;
+$euiCodeBlockSelectorTagColor: #c792ea;
+$euiCodeBlockStringColor: #c3e88d;
+$euiCodeBlockNumberColor: #f77669;
+$euiCodeBlockKeywordColor: #c792ea;
+$euiCodeBlockFunctionTitleColor: #75a5ff;
+$euiCodeBlockTagColor: #abb2bf;
+$euiCodeBlockNameColor: #e06c75;
+$euiCodeBlockTypeColor: #da4939;
+$euiCodeBlockAttributeColor: #80cbbf;
+$euiCodeBlockSymbolColor: #c792ea;
+$euiCodeBlockParamsColor: #eefff7;
+$euiCodeBlockMetaColor: #75a5ff;
+$euiCodeBlockTitleColor: #75a5ff;
+$euiCodeBlockSectionColor: #ffc66d;
+$euiCodeBlockAdditionBackgroundColor: #144212;
+$euiCodeBlockAdditionColor: #e6e1dc;
+$euiCodeBlockDeletionBackgroundColor: #600;
+$euiCodeBlockDeletionColor: #e6e1dc;
+$euiCodeBlockSelectorClassColor: #ffcb68;
+$euiCodeBlockSelectorIdColor: #f77669;

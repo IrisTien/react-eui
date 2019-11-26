@@ -1,4 +1,13 @@
+import { map } from 'lodash';
 import UserService from '../../../services/user_service';
+import {
+  TENANT_ID,
+  RESOURCE_FIELD_MAP,
+  THRESHOLDS,
+  POOL_POD_MAP
+} from './DASHBOARD-SESSION.CONSTANTS';
+import DashboardService from '../../../services/dashboard_service';
+import { isTSEnumMember } from '@babel/types';
 
 const DashboardSessionService = {
   groupSessionCountByField: (field: string) => {
@@ -40,12 +49,61 @@ const DashboardSessionService = {
     }
   },
 
-  getSessionOverview: (podId: string): any => {
+  generateCommonFilter: (query: any, podId?: string, poolId?: string) => {
+    if (!query) {
+      query = {};
+    }
+    if (!query.query) {
+      query.query = {};
+    }
+    if (!query.query.bool) {
+      query.query.bool = {};
+    }
+    if (!query.query.bool.must) {
+      query.query.bool.must = [];
+    }
+    query.query.bool.must.push({
+      term: {
+        cmstenantid: {
+          value: TENANT_ID,
+          boost: 1
+        }
+      }
+    });
+
+    if (podId && podId !== 'all') {
+      query.query.bool.must.push({
+        terms: {
+          sn_id: [podId]
+        }
+      });
+    }
+
+    if (poolId && poolId !== 'all') {
+      query.query.bool.must.push({
+        terms: {
+          poolid: [poolId]
+        }
+      });
+    }
+
+    return query;
+  },
+
+  getSessionOverview: (podId: string, poolId?: string): any => {
     const timestamp = Math.floor((Date.now() - 5 * 60000) / 60000) * 60000;
-    const query = {
+    const query: any = {
       query: {
         bool: {
           must: [
+            {
+              term: {
+                cmstenantid: {
+                  value: TENANT_ID,
+                  boost: 1
+                }
+              }
+            },
             {
               term: {
                 tag_timestamp: {
@@ -74,6 +132,9 @@ const DashboardSessionService = {
         type_details: DashboardSessionService.groupSessionCountByField('s_type')
       }
     };
+
+    DashboardSessionService.generateCommonFilter(query, podId, poolId);
+
     return UserService.searchData(query).then((res: any) => {
       if (!res || !res.aggregations) {
         return {};
@@ -112,9 +173,17 @@ const DashboardSessionService = {
     });
   },
 
-  getResourceConsumptionTrend: () => {
+  getResourceConsumptionTrend: (
+    timeInterval: number,
+    resourceType: string | undefined,
+    podId?: string,
+    poolId?: string
+  ) => {
+    const resourceField = resourceType
+      ? RESOURCE_FIELD_MAP[resourceType]
+      : RESOURCE_FIELD_MAP.CPU;
     const to = Date.now();
-    const from = to - 24 * 60 * 60 * 1000;
+    const from = to - timeInterval;
     const query = {
       query: {
         bool: {
@@ -130,9 +199,10 @@ const DashboardSessionService = {
         }
       },
       aggs: {
-        cpu_abs_group: {
+        resource_group: {
           terms: {
             field: 'tag_timestamp',
+            size: 7 * 24 * 60,
             order: [
               {
                 _key: 'asc'
@@ -140,9 +210,9 @@ const DashboardSessionService = {
             ]
           },
           aggs: {
-            cpu_mhz: {
+            resource: {
               sum: {
-                field: 'c_total_mhz'
+                field: resourceField
               }
             }
           }
@@ -150,6 +220,7 @@ const DashboardSessionService = {
         session_group: {
           terms: {
             field: 'tag_timestamp',
+            size: 7 * 24 * 60,
             order: [
               {
                 _key: 'asc'
@@ -179,16 +250,18 @@ const DashboardSessionService = {
       }
     };
 
+    DashboardSessionService.generateCommonFilter(query, podId, poolId);
+
     return UserService.searchData(query).then((res: any) => {
       if (!res || !res.aggregations) {
         return {};
       }
 
-      const cpuRaw = res.aggregations.cpu_abs_group.buckets || [];
-      const cpuTrendData = cpuRaw.map((item: any) => {
+      const resourceRaw = res.aggregations.resource_group.buckets || [];
+      const resourceTrendData = resourceRaw.map((item: any) => {
         return {
           time: item.key,
-          cpu: item.cpu_mhz.value
+          cpu: item.resource.value
         };
       });
 
@@ -218,7 +291,7 @@ const DashboardSessionService = {
       });
 
       return {
-        cpuTrend: cpuTrendData,
+        resourceTrend: resourceTrendData,
         totalTrend: totalSessionData,
         desktopTrend: desktopSessionData,
         applicationTrend: applicationSessionData
@@ -226,7 +299,7 @@ const DashboardSessionService = {
     });
   },
 
-  getSessionPerPod: () => {
+  getSessionPerPod: (podId?: string, poolId?: string) => {
     const timestamp = Math.floor((Date.now() - 5 * 60000) / 60000) * 60000;
     const query = {
       query: {
@@ -264,6 +337,8 @@ const DashboardSessionService = {
       }
     };
 
+    DashboardSessionService.generateCommonFilter(query, podId, poolId);
+
     return UserService.searchData(query).then((res: any) => {
       if (!res || !res.aggregations) {
         return [];
@@ -283,7 +358,145 @@ const DashboardSessionService = {
     });
   },
 
-  getSessionLatency: () => {
+  getLatencyBlastThresholds: () => {
+    return DashboardService.getThresholds(THRESHOLDS.BLAST_LATENCY).then(
+      (thresholdsItem: any) => {
+        let latencyRanges;
+        if (!thresholdsItem || !thresholdsItem.thresholds) {
+          latencyRanges = {
+            0: {
+              to: 100
+            },
+            1: {
+              from: 100,
+              to: 150
+            },
+            2: {
+              from: 150,
+              to: 200
+            },
+            3: {
+              from: 200,
+              to: 250
+            },
+            4: {
+              from: 250
+            }
+          };
+        } else {
+          latencyRanges = thresholdsItem.thresholds;
+        }
+
+        return latencyRanges;
+      }
+    );
+  },
+
+  getSessionLatency: (podId?: string, poolId?: string) => {
+    return DashboardService.getThresholds(THRESHOLDS.BLAST_LATENCY).then(
+      (thresholdsItem: any) => {
+        let latencyRanges;
+        if (!thresholdsItem || !thresholdsItem.thresholds) {
+          latencyRanges = [
+            {
+              key: '0',
+              to: 100
+            },
+            {
+              key: '1',
+              from: 100,
+              to: 150
+            },
+            {
+              key: '2',
+              from: 150,
+              to: 200
+            },
+            {
+              key: '3',
+              from: 200,
+              to: 250
+            },
+            {
+              key: '4',
+              from: 250
+            }
+          ];
+        } else {
+          latencyRanges = map(
+            thresholdsItem.thresholds,
+            (item: any, key: number) => {
+              const threshold: any = {
+                key: key
+              };
+              if (item.from) {
+                threshold.from = Number(item.from);
+              }
+              if (item.to) {
+                threshold.to = Number(item.to);
+              }
+              return threshold;
+            }
+          );
+        }
+
+        const timestamp = Math.floor((Date.now() - 5 * 60000) / 60000) * 60000;
+        const query = {
+          query: {
+            bool: {
+              must: [
+                {
+                  term: {
+                    tag_timestamp: {
+                      value: timestamp,
+                      boost: 1
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          aggs: {
+            latency_group: {
+              range: {
+                field: 'proto_rtt',
+                ranges: latencyRanges
+              },
+              aggs: {
+                session_count: {
+                  cardinality: {
+                    field: 'unique_id'
+                  }
+                }
+              }
+            }
+          }
+        };
+
+        DashboardSessionService.generateCommonFilter(query, podId, poolId);
+
+        return UserService.searchData(query).then((res: any) => {
+          if (!res || !res.aggregations) {
+            return [];
+          }
+
+          const dataRaw = res.aggregations.latency_group.buckets || [];
+          let index = 0;
+          const data = dataRaw.map((item: any) => {
+            return {
+              index: index++,
+              range: item.key,
+              session: item.session_count ? item.session_count.value : 0
+            };
+          });
+
+          return data;
+        });
+      }
+    );
+  },
+
+  getResourcePerPod: (resourceType: string) => {
     const timestamp = Math.floor((Date.now() - 5 * 60000) / 60000) * 60000;
     const query = {
       query: {
@@ -301,39 +514,20 @@ const DashboardSessionService = {
         }
       },
       aggs: {
-        latency_group: {
-          range: {
-            field: 'proto_rtt',
-            ranges: [
+        pod_resource_group: {
+          terms: {
+            field: 'sn_id',
+            size: 10,
+            order: [
               {
-                key: '<100 ms',
-                to: 100
-              },
-              {
-                key: '100-150 ms',
-                from: 100,
-                to: 150
-              },
-              {
-                key: '150-200 ms',
-                from: 150,
-                to: 200
-              },
-              {
-                key: '200-250 ms',
-                from: 200,
-                to: 250
-              },
-              {
-                key: '>250 ms',
-                from: 250
+                _key: 'asc'
               }
             ]
           },
           aggs: {
-            session_count: {
-              cardinality: {
-                field: 'unique_id'
+            resource_total: {
+              sum: {
+                field: RESOURCE_FIELD_MAP[resourceType]
               }
             }
           }
@@ -343,20 +537,16 @@ const DashboardSessionService = {
 
     return UserService.searchData(query).then((res: any) => {
       if (!res || !res.aggregations) {
-        return [];
+        return {};
       }
 
-      const dataRaw = res.aggregations.latency_group.buckets || [];
-      let index = 0;
-      const data = dataRaw.map((item: any) => {
+      const resourceRaw = res.aggregations.pod_resource_group.buckets || [];
+      return resourceRaw.map((item: any) => {
         return {
-          index: index++,
-          range: item.key,
-          session: item.session_count.value
+          podName: DashboardSessionService.getPodNameById(item.key),
+          resourceValue: item.resource_total.value
         };
       });
-
-      return data;
     });
   }
 };

@@ -3,8 +3,5 @@
     "editor.detectIndentation": false,
     "editor.formatOnSave": true,
     "javascript.preferences.quoteStyle": "single",
-    "typescript.preferences.quoteStyle": "single",
-    "prettier.jsxSingleQuote": true,
-    "prettier.quoteProps": "consistent",
-    "prettier.singleQuote": true
+    "typescript.preferences.quoteStyle": "single"
 }

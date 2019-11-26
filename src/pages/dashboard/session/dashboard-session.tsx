@@ -10,37 +10,56 @@ import {
   EuiFormRow,
   EuiSelect,
   EuiSpacer,
-  EuiPanel
+  EuiButton,
+  EuiPopover,
+  EuiForm,
+  EuiTextArea
 } from '@elastic/eui';
+import { clone } from 'lodash';
+import html2canvas from 'html2canvas';
+import FileSaver, { saveAs } from 'file-saver';
 import DashboardSessionSummary from './session-summary';
 import DashboardSessionResouceConsumption from './session-resource-consumption';
 import DashboardSessionConsumptionBars from './session-consumption-bars';
 import DashboardSessionService from './session-service';
+import { POOL_POD_MAP, ONE_HOUR_IN_MS } from './DASHBOARD-SESSION.CONSTANTS';
+import EditThresholdsModal from './edit-thresholds-modal';
+import EnvService from '../../../services/env_service';
 
-const DashboardSession: FC = (props: any) => {
+type DashboardSessionPropsType = {
+  isEmbed?: boolean;
+};
+
+const DashboardSession: FC<DashboardSessionPropsType> = (
+  props: DashboardSessionPropsType
+) => {
   const timeOptions = [
     {
-      value: '8h',
+      value: ONE_HOUR_IN_MS,
+      text: 'Last 1 hours'
+    },
+    {
+      value: 8 * ONE_HOUR_IN_MS,
       text: 'Last 8 hours'
     },
     {
-      value: '12h',
+      value: 12 * ONE_HOUR_IN_MS,
       text: 'Last 12 hours'
     },
     {
-      value: '24h',
+      value: 24 * ONE_HOUR_IN_MS,
       text: 'Last 24 hours'
     },
     {
-      value: '48h',
+      value: 48 * ONE_HOUR_IN_MS,
       text: 'Last 48 hours'
     },
     {
-      value: '5d',
+      value: 5 * 24 * ONE_HOUR_IN_MS,
       text: 'Last 5 days'
     },
     {
-      value: '7d',
+      value: 7 * 24 * ONE_HOUR_IN_MS,
       text: 'Last 7 days'
     }
   ];
@@ -75,13 +94,35 @@ const DashboardSession: FC = (props: any) => {
     }
   ];
 
-  const [timeInterval, setTimeInterval] = useState(timeOptions[2].value);
+  const poolOptionsRaw = [
+    {
+      value: 'all',
+      text: 'All Pools'
+    },
+    ...POOL_POD_MAP.map(item => {
+      return {
+        value: item.poolid,
+        text: item.pool,
+        podid: item.smartnodeid
+      };
+    })
+  ];
+
+  const [timeInterval, setTimeInterval] = useState(timeOptions[0].value);
   const [location, setLocation] = useState();
-  const [pod, setPod] = useState<string>('');
+  const [pod, setPod] = useState<string>('all');
+  const [pool, setPool] = useState<string>('all');
+  const [poolOptions, setPoolOptions] = useState<any[]>(poolOptionsRaw);
   const [counts, setCounts] = useState({});
   const [resourceTrendData, setResourceTrendData] = useState<any>({});
   const [resourcePodData, setResourcePodData] = useState<any>([]);
+  const [resroucePodPieData, setResourcePodPieData] = useState<any>([]);
   const [latencyData, setLatencyData] = useState<any[]>([]);
+  const [latencyRanges, setLatencyRanges] = useState<any>();
+  const [isThresholdModalVisible, setIsThresholdModalVisible] = useState<
+    boolean
+  >(false);
+  const [isIframePopoverOpen, setIsIframPopoverOpen] = useState<boolean>(false);
 
   const onTimeSelect = (e: any) => {
     setTimeInterval(e.target.value);
@@ -92,87 +133,223 @@ const DashboardSession: FC = (props: any) => {
   };
 
   const onPodSelect = (e: any) => {
+    if (e.target.value !== 'all') {
+      setPoolOptions(
+        poolOptionsRaw.filter((item: any) => {
+          return item.value === 'all' || item.podid === e.target.value;
+        })
+      );
+    } else {
+      setPoolOptions(poolOptionsRaw);
+    }
     setPod(e.target.value);
+  };
+
+  const onPoolSelect = (e: any) => {
+    setPool(e.target.value);
+  };
+
+  const fetchConsumptionData = (resourceType: any, deployment: any) => {
+    DashboardSessionService.getResourceConsumptionTrend(
+      timeInterval,
+      resourceType,
+      pod,
+      pool
+    ).then((res: any) => {
+      setResourceTrendData(res);
+    });
+
+    if (!deployment || deployment === 'Azure') {
+      DashboardSessionService.getSessionPerPod(pod, pool).then((res: any) => {
+        setResourcePodData(res);
+      });
+    } else {
+      DashboardSessionService.getResourcePerPod(resourceType).then(
+        (res: any) => {
+          setResourcePodPieData(res);
+        }
+      );
+    }
   };
 
   useEffect(() => {
     // TODO: get all user count summary info
-    DashboardSessionService.getSessionOverview(pod).then((res: any) => {
+    DashboardSessionService.getSessionOverview(pod, pool).then((res: any) => {
       setCounts({
         ...counts,
         ...res
       });
     });
 
-    DashboardSessionService.getResourceConsumptionTrend().then((res: any) => {
-      setResourceTrendData(res);
-    });
+    fetchConsumptionData(undefined, undefined);
 
-    DashboardSessionService.getSessionPerPod().then((res: any) => {
-      setResourcePodData(res);
-    });
-
-    DashboardSessionService.getSessionLatency().then((res: any) => {
+    DashboardSessionService.getSessionLatency(pod, pool).then((res: any) => {
       setLatencyData(res);
+    });
+
+    DashboardSessionService.getLatencyBlastThresholds().then((res: any) => {
+      setLatencyRanges(res);
     });
 
     return () => {
       setCounts({});
       setResourceTrendData({});
       setResourcePodData([]);
+      setResourcePodPieData([]);
       setLatencyData([]);
     };
   }, [timeInterval, location, pod]);
 
+  const onUpdateModalVisibility = (visible: boolean) => {
+    setIsThresholdModalVisible(visible);
+
+    if (!visible) {
+      DashboardSessionService.getSessionLatency(pod, pool).then((res: any) => {
+        setLatencyData(res);
+      });
+
+      DashboardSessionService.getLatencyBlastThresholds().then((res: any) => {
+        setLatencyRanges(res);
+      });
+    }
+  };
+
+  const renderModal = () => {
+    if (isThresholdModalVisible) {
+      return (
+        <EditThresholdsModal
+          key="dashboard-session-threshold-modal"
+          onClose={(() => onUpdateModalVisibility(false)).bind(
+            DashboardSession
+          )}
+        />
+      );
+    }
+  };
+
+  const onSaveAsImage = () => {
+    html2canvas(
+      document.getElementById('dashboard-page-content') || document.body,
+      {
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight
+      }
+    ).then((canvas: any) => {
+      FileSaver.saveAs(canvas.toDataURL(), 'dashboard-screenshot.png');
+    });
+  };
+
+  const onIframeBtnClick = () => {
+    setIsIframPopoverOpen(!isIframePopoverOpen);
+  };
+
+  const closeIframePopover = () => {
+    setIsIframPopoverOpen(false);
+  };
+
+  const renderIframePopover = () => {
+    const button = <EuiButton onClick={onIframeBtnClick}>Share</EuiButton>;
+
+    return (
+      <EuiPopover
+        ownFocus
+        button={button}
+        isOpen={isIframePopoverOpen}
+        closePopover={closeIframePopover}
+      >
+        <EuiForm>
+          <EuiFormRow label="iframe code">
+            <EuiTextArea
+              value={`<iframe src="${window.location.href}?embed=true&token=${EnvService.token}" height="600" width="100%" frameborder="no"></iframe>`}
+              readOnly
+            />
+          </EuiFormRow>
+        </EuiForm>
+      </EuiPopover>
+    );
+  };
+
   return (
-    <EuiPageBody>
-      <EuiPageHeader>
-        <EuiPageHeaderSection className='mui-header'>
-          <EuiTitle size='l'>
-            <h1>Dashboard Sessions</h1>
-          </EuiTitle>
-        </EuiPageHeaderSection>
-      </EuiPageHeader>
-      <EuiFlexGroup>
-        <EuiFlexItem>
-          <EuiFormRow>
-            <EuiSelect
-              options={timeOptions}
-              value={timeInterval}
-              onChange={onTimeSelect}
-            />
-          </EuiFormRow>
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiFormRow>
-            <EuiSelect
-              options={locationOptions}
-              value={location}
-              onChange={onLocationSelect}
-            />
-          </EuiFormRow>
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiFormRow>
-            <EuiSelect
-              options={podOptions}
-              value={pod}
-              onChange={onPodSelect}
-            />
-          </EuiFormRow>
-        </EuiFlexItem>
-      </EuiFlexGroup>
-      <EuiSpacer size='m' />
-      <DashboardSessionSummary counts={counts} />
-      <EuiSpacer />
-      <DashboardSessionResouceConsumption
-        counts={counts}
-        trendData={resourceTrendData}
-        barData={resourcePodData}
-      />
-      <EuiSpacer />
-      <DashboardSessionConsumptionBars blastData={latencyData} />
-    </EuiPageBody>
+    <>
+      <EuiPageBody id="dashboard-page-content">
+        {props.isEmbed ? (
+          <></>
+        ) : (
+          <EuiPageHeader>
+            <EuiPageHeaderSection className="mui-header">
+              <EuiTitle size="l">
+                <h1>Dashboard Sessions</h1>
+              </EuiTitle>
+            </EuiPageHeaderSection>
+          </EuiPageHeader>
+        )}
+        <EuiFlexGroup>
+          <EuiFlexItem>
+            <EuiFormRow>
+              <EuiSelect
+                options={timeOptions}
+                value={timeInterval}
+                onChange={onTimeSelect}
+              />
+            </EuiFormRow>
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <EuiFormRow>
+              <EuiSelect
+                options={locationOptions}
+                value={location}
+                onChange={onLocationSelect}
+              />
+            </EuiFormRow>
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <EuiFormRow>
+              <EuiSelect
+                options={podOptions}
+                value={pod}
+                onChange={onPodSelect}
+              />
+            </EuiFormRow>
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <EuiFormRow>
+              <EuiSelect
+                options={poolOptions}
+                value={pool}
+                onChange={onPoolSelect}
+              />
+            </EuiFormRow>
+          </EuiFlexItem>
+          {props.isEmbed ? (
+            <></>
+          ) : (
+            <>
+              <EuiFlexItem grow={false}>
+                <EuiButton onClick={onSaveAsImage}>Save as Image</EuiButton>
+              </EuiFlexItem>
+              <EuiFlexItem grow={false}>{renderIframePopover()}</EuiFlexItem>
+            </>
+          )}
+        </EuiFlexGroup>
+        <EuiSpacer size="m" />
+        <DashboardSessionSummary counts={counts} />
+        <EuiSpacer />
+        <DashboardSessionResouceConsumption
+          counts={counts}
+          trendData={resourceTrendData}
+          barData={resourcePodData}
+          pieData={resroucePodPieData}
+          fetchData={fetchConsumptionData}
+        />
+        <EuiSpacer />
+        <DashboardSessionConsumptionBars
+          blastData={latencyData}
+          latencyRanges={latencyRanges}
+          setModalVisible={onUpdateModalVisibility}
+        />
+      </EuiPageBody>
+      {renderModal()}
+    </>
   );
 };
 

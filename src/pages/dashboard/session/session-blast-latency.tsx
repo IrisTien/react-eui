@@ -8,7 +8,8 @@ import {
   EuiIcon,
   EuiPopover,
   EuiFlexGroup,
-  EuiFlexItem
+  EuiFlexItem,
+  EuiButtonEmpty
 } from '@elastic/eui';
 import {
   Chart,
@@ -19,20 +20,46 @@ import {
   getAxisId
 } from '@elastic/charts';
 import { PropertySortType } from '@elastic/eui';
+import { EuiContextMenu } from '@elastic/eui';
+import { EuiContextMenuPanelDescriptor } from '@elastic/eui';
+import html2canvas from 'html2canvas';
 
 type SessionBlastLatencyPropTypes = {
   data?: any[];
+  latencyRanges?: any;
+  setModalVisible: Function;
 };
 
 const DashboardSessionBlastLatency: FC<
   SessionBlastLatencyPropTypes
 > = props => {
   const [isRefreshInfoOpen, setIsRefreshInfoOpen] = useState();
+  const [isContextMenuOpen, setIsContextMenuOpen] = useState<boolean>(false);
+
+  const contextPanel: any[] = [
+    {
+      id: 0,
+      title: 'Option',
+      items: [
+        {
+          name: 'Edit thresholds',
+          icon: <EuiIcon type='search' size='m' />,
+          onClick: () => onContextItemClick('editThreshold')
+        },
+        {
+          name: 'Save as image',
+          icon: <EuiIcon type='save' size='m' />,
+          onClick: () => onContextItemClick('saveImage')
+        }
+      ]
+    }
+  ];
 
   let panel: any;
   const setPanelRef = (node: any) => {
     panel = node;
   };
+
   const onInfoIconClick = (event: MouseEvent) => {
     setIsRefreshInfoOpen(!isRefreshInfoOpen);
   };
@@ -41,21 +68,26 @@ const DashboardSessionBlastLatency: FC<
     setIsRefreshInfoOpen(false);
   };
 
-  const tickFormat = (value: any) => {
-    switch (value) {
-      case 0:
-        return '>250 ms';
-      case 1:
-        return '200-250 ms';
-      case 2:
-        return '150-200 ms';
-      case 3:
-        return '100-150 ms';
-      case 4:
-        return '<100 ms';
-      default:
-        return '';
+  const generateAxisLabel = (
+    from: number | undefined,
+    to: number | undefined
+  ) => {
+    if (!from) {
+      return `<${to} ms`;
+    } else if (!to) {
+      return `>${from} ms`;
     }
+    return `${from}-${to} ms`;
+  };
+
+  const tickFormat = (value: any) => {
+    if (props.latencyRanges[value]) {
+      return generateAxisLabel(
+        props.latencyRanges[value].from,
+        props.latencyRanges[value].to
+      );
+    }
+    return '';
   };
 
   const renderPopover = () => {
@@ -74,11 +106,61 @@ const DashboardSessionBlastLatency: FC<
     );
   };
 
+  const onContextBtnClick = (e: MouseEvent<HTMLButtonElement>) => {
+    setIsContextMenuOpen(!isContextMenuOpen);
+  };
+
+  const closeContextMenu = () => {
+    setIsContextMenuOpen(false);
+  };
+
+  const onContextItemClick = (event: string) => {
+    closeContextMenu();
+    if (event === 'editThreshold') {
+      props.setModalVisible(true);
+    } else if (event === 'saveImage') {
+      html2canvas(panel, {
+        windowWidth: 600,
+        windowHeight: 500
+      }).then((canvas: any) => {
+        saveAs(canvas.toDataURL(), 'session-blast-latency-chart.png');
+      });
+    }
+  };
+
+  const renderContextMenu = () => {
+    const button = (
+      <EuiButtonEmpty
+        iconType='arrowDown'
+        iconSide='right'
+        onClick={onContextBtnClick}
+      >
+        ...
+      </EuiButtonEmpty>
+    );
+    return (
+      <EuiPopover
+        id='context-menu-popover'
+        button={button}
+        isOpen={isContextMenuOpen}
+        closePopover={closeContextMenu}
+        anchorPosition='downLeft'
+      >
+        <EuiContextMenu initialPanelId={0} panels={contextPanel} />
+      </EuiPopover>
+    );
+  };
+
   return (
     <EuiPanel panelRef={setPanelRef}>
-      <EuiTitle size='xs' className='mui-header'>
-        <h1>Latency (BLAST)</h1>
-      </EuiTitle>
+      <EuiFlexGroup>
+        <EuiFlexItem>
+          <EuiTitle size='xs' className='mui-header'>
+            <h1>Latency (BLAST)</h1>
+          </EuiTitle>
+        </EuiFlexItem>
+        <EuiFlexItem grow={false}>{renderContextMenu()}</EuiFlexItem>
+      </EuiFlexGroup>
       <EuiSpacer size='s' />
       <EuiText textAlign='left'>
         <span className='session-text-label'>Realtime</span>

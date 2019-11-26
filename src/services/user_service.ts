@@ -1,13 +1,21 @@
 import HttpService from './http_service';
 import { DataGenerator } from '@elastic/charts';
 import { AxiosRequestConfig } from 'axios';
+import EnvService from './env_service';
 
-const BASE_URL = '/session-data-v1/_search';
+// const BASE_URL = '/session-data-v1/_search';
+const BASE_URL = 'https://exp.cms-958587118673.com/session-data-v1/_search';
 
 const DEFAULT_CONFIG: AxiosRequestConfig = {
   headers: {
     'Content-Type': 'application/json'
   }
+};
+
+const generateConfig = () => {
+  const config = { ...DEFAULT_CONFIG };
+  config.headers.Authorization = `Bearer ${EnvService.token}`;
+  return config;
 };
 
 class UserAPI {
@@ -65,7 +73,7 @@ class UserAPI {
         }
       }
     };
-    return HttpService.post(BASE_URL, body, DEFAULT_CONFIG);
+    return HttpService.post(BASE_URL, body, generateConfig());
   }
 
   searchDataByQueryBody(query: any) {
@@ -87,11 +95,11 @@ class UserAPI {
         }
       }
     };
-    return HttpService.post(BASE_URL, query, DEFAULT_CONFIG);
+    return HttpService.post(BASE_URL, query, generateConfig());
   }
 
   searchData(query: any) {
-    return HttpService.post(BASE_URL, query, DEFAULT_CONFIG);
+    return HttpService.post(BASE_URL, query, generateConfig());
   }
 }
 

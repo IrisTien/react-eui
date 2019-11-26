@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { uniqBy } from 'lodash';
 
 class DashboardServiceProto {
   constructor() {}
@@ -93,6 +94,37 @@ class DashboardServiceProto {
       'dashboards-detail',
       JSON.stringify(dashboardDetailList)
     );
+    return Promise.resolve('succeed');
+  }
+
+  getThresholds(panel: string) {
+    const thresList = JSON.parse(localStorage.getItem('thresholds') || '[]');
+
+    if (panel) {
+      const thres = thresList.find((item: any) => item.panel === panel);
+      if (!thres) {
+        return Promise.reject('Thres not exist');
+      }
+      return Promise.resolve(thres);
+    }
+    return Promise.resolve();
+  }
+
+  updateThresholds(panel: string, thresholds: any) {
+    const thresList = JSON.parse(localStorage.getItem('thresholds') || '[]');
+
+    const newThresList = uniqBy(
+      [
+        {
+          panel: panel,
+          thresholds: thresholds
+        },
+        ...thresList
+      ],
+      'panel'
+    );
+
+    localStorage.setItem('thresholds', JSON.stringify(newThresList));
     return Promise.resolve('succeed');
   }
 }

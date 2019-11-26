@@ -11,8 +11,21 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 } */
+
+// Light theme
 @import '../node_modules/@elastic/eui/src/theme_light.scss';
 @import '~@elastic/eui/src/themes/eui/eui_colors_light';
+
+// Dark theme
+// @import '~@elastic/eui/src/theme_dark.scss';
+// @import '~@elastic/eui/src/themes/eui/eui_colors_dark';
+
+// Customized theme
+// @import './styles/core/colors';
+// @import '~@elastic/eui/src/global_styling/index';
+// @import '~@elastic/eui/src/components/index';
+// @import '~@elastic/eui/packages/index';
+
 @import '~@elastic/eui/src/global_styling/functions/index';
 @import '~@elastic/eui/src/global_styling/variables/index';
 @import '~@elastic/eui/src/global_styling/mixins/index';

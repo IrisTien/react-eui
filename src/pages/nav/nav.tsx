@@ -15,20 +15,20 @@ import {
   // @ts-ignore
   EuiNavDrawer,
   EuiHorizontalRule,
-  EuiFocusTrap
+  EuiFocusTrap,
+  keyCodes
 } from '@elastic/eui';
 
-import { keyCodes } from '@elastic/eui/lib/services';
 import AppRouterService from '../../app_router';
 
-export class AppNav extends Component {
+export class AppNav extends Component<any> {
   state = {};
   navDrawerRef: any;
 
   faveExtraAction = {
-    'color': 'subdued',
-    'iconType': 'starEmpty',
-    'iconSize': 's',
+    color: 'subdued',
+    iconType: 'starEmpty',
+    iconSize: 's',
     'aria-label': 'Add to favorites'
   };
 
@@ -63,11 +63,11 @@ export class AppNav extends Component {
             extraAction: this.faveExtraAction
           },
           {
-            'label': 'My logs',
-            'href': '#/layout/nav-drawer',
-            'iconType': 'logsApp',
+            label: 'My logs',
+            href: '#/layout/nav-drawer',
+            iconType: 'logsApp',
             'aria-label': 'This is an alternate aria-label',
-            'extraAction': this.faveExtraAction
+            extraAction: this.faveExtraAction
           }
         ]
       }
@@ -83,11 +83,11 @@ export class AppNav extends Component {
             href: '#/layout/nav-drawer',
             iconType: 'canvasApp',
             extraAction: {
-              'color': 'subdued',
-              'iconType': 'starFilled',
-              'iconSize': 's',
+              color: 'subdued',
+              iconType: 'starFilled',
+              iconSize: 's',
               'aria-label': 'Remove from favorites',
-              'alwaysShow': true
+              alwaysShow: true
             }
           },
           {
@@ -95,11 +95,11 @@ export class AppNav extends Component {
             href: '#/layout/nav-drawer',
             iconType: 'logsApp',
             extraAction: {
-              'color': 'subdued',
-              'iconType': 'starFilled',
-              'iconSize': 's',
+              color: 'subdued',
+              iconType: 'starFilled',
+              iconSize: 's',
               'aria-label': 'Remove from favorites',
-              'alwaysShow': true
+              alwaysShow: true
             }
           }
         ]
@@ -109,8 +109,8 @@ export class AppNav extends Component {
 
   exploreLinks = [
     {
-      label: 'Canvas',
-      href: 'session',
+      label: 'Session',
+      href: 'app/session',
       iconType: 'canvasApp',
       extraAction: {
         ...this.pinExtraActionFn('Canvas'),
@@ -118,20 +118,20 @@ export class AppNav extends Component {
       }
     },
     {
-      label: 'Discover',
-      href: 'layout/nav-drawer',
+      label: 'Board',
+      href: 'app/board',
       iconType: 'discoverApp',
       extraAction: { ...this.pinExtraActionFn('Discover') }
     },
     {
-      label: 'Visualize',
-      href: '#/layout/nav-drawer',
+      label: 'Board',
+      href: 'app/newBoard',
       iconType: 'visualizeApp',
       extraAction: { ...this.pinExtraActionFn('Visualize') }
     },
     {
       label: 'Dashboard',
-      href: 'layout/dashboards',
+      href: 'app/layout/dashboards',
       iconType: 'dashboardApp',
       extraAction: { ...this.pinExtraActionFn('Dashboard') }
     },
@@ -152,9 +152,9 @@ export class AppNav extends Component {
       extraAction: { ...this.pinExtraActionFn('Nature Plugin') },
       icon: (
         <EuiImage
-          size='s'
-          alt='Random nature image'
-          url='https://source.unsplash.com/300x300/?Nature'
+          size="s"
+          alt="Random nature image"
+          url="https://source.unsplash.com/300x300/?Nature"
         />
       )
     }
@@ -211,9 +211,9 @@ export class AppNav extends Component {
             href: '#/layout/nav-drawer',
             iconType: 'devToolsApp',
             extraAction: {
-              'color': 'subdued',
-              'iconType': 'starEmpty',
-              'iconSize': 's',
+              color: 'subdued',
+              iconType: 'starEmpty',
+              iconSize: 's',
               'aria-label': 'Add to favorites'
             }
           },
@@ -222,9 +222,9 @@ export class AppNav extends Component {
             href: '#/layout/nav-drawer',
             iconType: 'monitoringApp',
             extraAction: {
-              'color': 'subdued',
-              'iconType': 'starEmpty',
-              'iconSize': 's',
+              color: 'subdued',
+              iconType: 'starEmpty',
+              iconSize: 's',
               'aria-label': 'Add to favorites'
             }
           },
@@ -233,9 +233,9 @@ export class AppNav extends Component {
             href: '#/layout/nav-drawer',
             iconType: 'managementApp',
             extraAction: {
-              'color': 'subdued',
-              'iconType': 'starEmpty',
-              'iconSize': 's',
+              color: 'subdued',
+              iconType: 'starEmpty',
+              iconSize: 's',
               'aria-label': 'Add to favorites'
             }
           }
@@ -246,8 +246,8 @@ export class AppNav extends Component {
 
   renderMenuTrigger() {
     return (
-      <EuiHeaderSectionItemButton aria-label='Open nav'>
-        <EuiIcon type='apps' href='#' size='m' />
+      <EuiHeaderSectionItemButton aria-label="Open nav">
+        <EuiIcon type="apps" href="#" size="m" />
       </EuiHeaderSectionItemButton>
     );
   }
@@ -255,9 +255,9 @@ export class AppNav extends Component {
   renderLogo() {
     return (
       <EuiHeaderLogo
-        iconType='logoKibana'
-        href='#/layout/nav-drawer'
-        aria-label='Goes to home'
+        iconType="logoKibana"
+        href="#/layout/nav-drawer"
+        aria-label="Goes to home"
       />
     );
   }
@@ -285,19 +285,19 @@ export class AppNav extends Component {
       };
     });
     return (
-      <EuiFocusTrap>
-        <EuiHeader>
+      <>
+        <EuiHeader className="app-header">
           <EuiHeaderSection grow={false}>
-            <EuiHeaderSectionItem border='right'>
-              <EuiHeaderLogo href='#'>Cloud Monitoring</EuiHeaderLogo>
+            <EuiHeaderSectionItem border="right">
+              <EuiHeaderLogo href="#">Cloud Monitoring</EuiHeaderLogo>
             </EuiHeaderSectionItem>
 
             <EuiHeaderLinks>
-              <EuiHeaderLink href='#'>Docs</EuiHeaderLink>
+              <EuiHeaderLink href="#">Docs</EuiHeaderLink>
 
-              <EuiHeaderLink href='#'>Code</EuiHeaderLink>
+              <EuiHeaderLink href="#">Code</EuiHeaderLink>
 
-              <EuiHeaderLink iconType='help' href='#'>
+              <EuiHeaderLink iconType="help" href="#">
                 Help
               </EuiHeaderLink>
             </EuiHeaderLinks>
@@ -305,14 +305,14 @@ export class AppNav extends Component {
         </EuiHeader>
         <EuiNavDrawer ref={this.setNavDrawerRef} showExpandButton={true}>
           <EuiNavDrawerGroup listItems={this.topLinks} />
-          <EuiHorizontalRule margin='none' />
+          <EuiHorizontalRule margin="none" />
           <EuiNavDrawerGroup listItems={this.exploreLinks} />
-          <EuiHorizontalRule margin='none' />
+          <EuiHorizontalRule margin="none" />
           <EuiNavDrawerGroup listItems={this.solutionsLinks} />
-          <EuiHorizontalRule margin='none' />
+          <EuiHorizontalRule margin="none" />
           <EuiNavDrawerGroup listItems={this.adminLinks} />
         </EuiNavDrawer>
-      </EuiFocusTrap>
+      </>
     );
   }
 

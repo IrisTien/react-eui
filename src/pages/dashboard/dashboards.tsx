@@ -34,7 +34,7 @@ export class Dashboards extends Component<any, any> {
       name: 'Dashboard Title',
       sortable: true,
       render: (name: any, item: any) => (
-        <EuiCustomLink to={`/layout/dashboard/${item.id}`}>
+        <EuiCustomLink to={`/app/layout/dashboard/${item.id}`}>
           {name}
         </EuiCustomLink>
       )
@@ -88,9 +88,9 @@ export class Dashboards extends Component<any, any> {
     const dashboards = (
       <EuiPageBody>
         <EuiPanel onClick={() => console.log('Dashboards Panel clicked')}>
-          <EuiFlexGroup gutterSize='s' alignItems='center'>
+          <EuiFlexGroup gutterSize="s" alignItems="center">
             <EuiFlexItem>
-              <EuiTitle size='l'>
+              <EuiTitle size="l">
                 <h1>Dashboard</h1>
               </EuiTitle>
             </EuiFlexItem>
