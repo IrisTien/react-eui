@@ -1,14 +1,14 @@
 import React, { FC, useState } from 'react';
-import './App.scss';
+import './pages/App.scss';
 import Dashboard from './pages/dashboard/dashboard';
 import { EuiPage } from '@elastic/eui';
 import { Router, withRouter, Route, useLocation } from 'react-router-dom';
 import { Dashboards } from './pages/dashboard/dashboards';
-import AppRouterService from './app_router';
+import AppRouterService from './pages/app_router';
 import { AppNav } from './pages/nav/nav';
 import DashboardSession from './pages/dashboard/session/dashboard-session';
 import ReactDOM from 'react-dom';
-import App from './App';
+import App from './pages/App';
 
 type AppContainerPropsType = {
   router?: any;

@@ -19,7 +19,7 @@ import {
   keyCodes
 } from '@elastic/eui';
 
-import AppRouterService from '../../app_router';
+import AppRouterService from '../app_router';
 
 export class AppNav extends Component<any> {
   state = {};

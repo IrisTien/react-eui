@@ -4,7 +4,9 @@ import { AxiosRequestConfig } from 'axios';
 import EnvService from './env_service';
 
 // const BASE_URL = '/session-data-v1/_search';
-const BASE_URL = 'https://exp.cms-958587118673.com/session-data-v1/_search';
+// const BASE_URL = 'https://exp.cms-958587118673.com/session-data-v1/_search';
+const BASE_URL =
+  'https://data-exp-eu-central-1.cms.vmware.com/session-data-v1/_search';
 
 const DEFAULT_CONFIG: AxiosRequestConfig = {
   headers: {

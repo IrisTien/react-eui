@@ -1,12 +1,12 @@
 import React, { FC, useState } from 'react';
 import './App.scss';
-import Dashboard from './pages/dashboard/dashboard';
+import Dashboard from './dashboard/dashboard';
 import { EuiPage } from '@elastic/eui';
 import { Router, withRouter, Route, useLocation } from 'react-router-dom';
-import { Dashboards } from './pages/dashboard/dashboards';
+import { Dashboards } from './dashboard/dashboards';
 import AppRouterService from './app_router';
-import { AppNav } from './pages/nav/nav';
-import DashboardSession from './pages/dashboard/session/dashboard-session';
+import { AppNav } from './nav/nav';
+import DashboardSession from './dashboard/session/dashboard-session';
 import ReactDOM from 'react-dom';
 import App from './App';
 
@@ -24,7 +24,7 @@ const AppContainer: FC = (props: any) => {
 
   return (
     <Router history={AppRouterService.getHistory()}>
-      <div className='App' ref={(dom: any) => setAppDom(dom)}>
+      <div className="App" ref={(dom: any) => setAppDom(dom)}>
         <App></App>
       </div>
     </Router>

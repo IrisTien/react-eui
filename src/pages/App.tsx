@@ -1,6 +1,6 @@
 import React, { FC, useState, useEffect, Component } from 'react';
 import './App.scss';
-import Dashboard from './pages/dashboard/dashboard';
+import Dashboard from './dashboard/dashboard';
 import {
   EuiPage,
   EuiPageBody,
@@ -11,17 +11,17 @@ import {
   EuiSpacer
 } from '@elastic/eui';
 import { Switch, Route, useLocation } from 'react-router-dom';
-import { Dashboards } from './pages/dashboard/dashboards';
-import { AppNav } from './pages/nav/nav';
-import DashboardSession from './pages/dashboard/session/dashboard-session';
+import { Dashboards } from './dashboard/dashboards';
+import { AppNav } from './nav/nav';
+import DashboardSession from './dashboard/session/dashboard-session';
 import { tsConstructorType } from '@babel/types';
 import ReactDOM, { render } from 'react-dom';
 import AppRouterService from './app_router';
-import DashboardBoard from './pages/board/board';
+import DashboardBoard from './board/board';
 import queryString from 'query-string';
-import EnvService from './services/env_service';
-import NewBoard from './pages/board/newboard';
-import EuiZoidComponent from './pages/component/eui-zoid';
+import EnvService from '../services/env_service';
+import NewBoard from './board/newboard';
+import EuiZoidComponent from './component/eui-zoid';
 
 type AppPropsType = {
   location?: any;

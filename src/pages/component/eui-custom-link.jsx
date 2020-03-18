@@ -1,13 +1,13 @@
 import React from 'react';
 import { EuiLink } from '@elastic/eui';
 import { useHistory } from 'react-router';
-import AppRouterService from '../../app_router';
+import AppRouterService from '../app_router';
 
 // Most of the content of this files are from https://github.com/elastic/eui/pull/1976.
-const isModifiedEvent = (event) =>
+const isModifiedEvent = event =>
   !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
 
-const isLeftClickEvent = (event) => event.button === 0;
+const isLeftClickEvent = event => event.button === 0;
 
 export default function EuiCustomLink({ to, ...props }) {
   // This is the key!
